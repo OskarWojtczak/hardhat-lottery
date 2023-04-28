@@ -1,0 +1,98 @@
+Raffle.sol contract outline
+
+    Functionality
+
+        Users can enter Raffle by paying some fee
+            - Raffle must be 'open' to enter
+
+        Winner is picked (verifiably) randomly after some time has passed (completly automated)
+            Requirements for execution
+                Chainlink Oracle -> Verifiable Randomness
+                Chainlink Keepers -> Automated Execution
+        
+        Funds are sent to winner automatically
+            Requirements for execution
+                Chainlink Keepers -> Automated Execution
+
+
+    Implementation Details/Function Descriptions
+
+        Constructor
+           
+            Parameters passed to Constructor
+                - VRFCoordinatorV2 (address) 
+                    - address of VRF coordinator contract associated with the desired network ~ https://docs.chain.link/vrf/v2/subscription/supported-networks/
+                - Raffle/Lottery Entrance Fee (uint256)
+                    - Sets raffle entry fee
+                - Gas Lane (bytes32)
+                    - used to specify the maximum gas price to bump to
+                    - passed as parameter to requestRandomWords function
+                - Subscription ID (uint256)
+                    - ID number of subscription created by deployer to fund random number requests ~ https://vrf.chain.link/?_ga=2.4420659.1431490477.1682591195-844039559.1681417444
+                - Callback Gas Limit (uint256)
+                    - The limit for how much gas to use for the callback request to your contracts fullfillRandomWords function
+                    - Storing each 'word' costs about 20,000 gas. since we only ever request one number a limit in this order is sufficient
+                - Time Interval (uint256)
+                    - Desired time between lottery winner being chosen in seconds
+            
+            Parameters set by constructor implicitly upon creation
+                - Raffle State (RaffleState)
+                    - Set to OPEN upon contract creation
+                - Timestamp 
+                    - Sets the initial timestamp of when the contract is created
+
+        enterRaffle() 
+
+            Allows users to enter raffle and stores information about them as long as some conditions are met
+
+                Conditions
+                    - User can only enter is entrance fee is sufficient. Else error.
+                        - if (msg.value < i_entranceFee) {
+                            revert Raffle__NotEnoughETHEntered();
+                        }
+                    - The raffle must be in an 'OPEN' state when user attempts to enter. Else error.
+                        - if(s_RaffleState != RaffleState.OPEN) {
+                            revert Raffle__NotOpen();
+                        }
+                
+                Function
+                    - Add user wallet address to `payable` players array
+                        - s_players.push(payable(msg.sender));
+                    - Emit RaffleEnter() event 
+                        - emit RaffleEnter(msg.sender);   
+
+        fullfillRandomWords()
+
+            Picks a winner and resets raffle so that new entries can be made
+
+                Function
+                    - Picks winner using random number
+                    - Resets players array
+                    - Updates timestamp
+                    - OPENs raffle again
+                    - Pays winner prize money
+                    - Emits event WinnerPicked(recentWinner)
+
+        checkUpkeep()
+
+            Called by chainlink nodes to check if performUpkeep() is required. Must return TRUE
+
+                Function
+                    - Returns true only if:
+                        1) The raffle is OPEN
+                        2) The time interval has passed
+                        3) There are participants in the lottery
+                        4) The keeper subscription is funded with link
+        
+        performUpkeep()
+
+            Called by chainlink nodes when checkUpkeep() returns true. Temporarily closes raffle and returns a random number so a winner can be picked
+
+                Function
+                    - Places raffle in CALCULATING state 
+                    - Calls requestRandomWords() to get a random number from chainlink
+                    - Emit event with the indexed random number
+
+        View/Pure Functions
+        
+
