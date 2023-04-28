@@ -1,4 +1,4 @@
-# Lottery Smart Contract with Hardhat
+# :slot_machine: Lottery Smart Contract with Hardhat :military_helmet:
 
 This repository contains a Hardhat project that deploys a lottery smart contract to a local development network and to test networks like Sepolia. This contract implements Chainlink VRF and Chainlink Keepers to provide an automated and verifiably fair Lottery for all users. The project includes unit and staging test scripts, as well as a mock contract to simulate Chainlink VRF and Chainlink Keepers for local use.
 
