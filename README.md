@@ -23,7 +23,7 @@ npx hardhat compile //or yarn hardhat compile
 
 ## Usage
 
-DISCLAIMER: Please do not share your private account key with anybody for any reason! My suggestion, should anyone like to test or deploy this contract is to make a new account that will only ever hold test currency like SepoliaETH.
+:warning:DISCLAIMER: Please do not share your private account key with anybody for any reason! My suggestion, should anyone like to test or deploy this contract is to make a new account that will only ever hold test currency like SepoliaETH.:warning:
 
 To run tests or deploy to any test network please ensure to configure and provide (in a .env file or else):
  
